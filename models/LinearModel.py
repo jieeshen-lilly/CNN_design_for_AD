@@ -3,6 +3,7 @@ from __future__ import print_function
 import torch.nn as nn
 from torch.autograd import Function
 
+
 class alex_net_complete(nn.Module):
     def __init__(self, image_embedding_model, classifier=None):
         super(alex_net_complete, self).__init__()
@@ -18,6 +19,7 @@ class alex_net_complete(nn.Module):
 
         return logit_res
 
+
 class alex_net_mmse(nn.Module):
     def __init__(self, image_embedding_model, regressor):
         super(alex_net_mmse, self).__init__()
@@ -29,6 +31,7 @@ class alex_net_mmse(nn.Module):
         output = self.regressor(image_embedding)
 
         return output
+
 
 class alex_net_seg(nn.Module):
     def __init__(self, image_embedding_model, deconv_layers):
@@ -42,9 +45,12 @@ class alex_net_seg(nn.Module):
 
         return output
 
+
 """
 Gradient reversal layer from https://discuss.pytorch.org/t/solved-reverse-gradients-in-backward-pass/3589/6
 """
+
+
 class GradReverse(Function):
 
     def __init__(self, lambd=-1.0):
@@ -56,21 +62,22 @@ class GradReverse(Function):
     def backward(self, grad_output):
         return (grad_output * self.lambd)
 
+
 class adversarial_linear_model(nn.Module):
     def __init__(self, image_embedding_model, classifier,
-            lambda_grl):
+                 lambda_grl):
         super(adversarial_linear_model, self).__init__()
         self.image_embedding_model = image_embedding_model
         self.reversal_layer = GradReverse(lambda_grl)
         self.classifier = classifier
 
     def get_lambda(self):
-        return(self.reversal_layer.lambd)
+        return (self.reversal_layer.lambd)
 
     def set_lambda(self, lambd):
         self.reversal_layer.lambd = lambd
 
-    def forward(self, input_image_variable,age_id=None):
+    def forward(self, input_image_variable, age_id=None):
         image_embedding = self.image_embedding_model(input_image_variable, age_id)
 
         classifier_input = self.reversal_layer(image_embedding)

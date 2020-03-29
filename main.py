@@ -15,7 +15,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import torchvision.transforms as transforms
 from torch.optim.lr_scheduler import LambdaLR, MultiStepLR
-from models.build_model import build_model
+from CNN_design_for_AD.models.build_model import build_model
 from torchvision import utils
 import os
 import datasets
